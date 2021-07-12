@@ -81,6 +81,7 @@ class KubernetesOptions(BaseModel):
     maxReplicas: Optional[int] = None
     authSecretName: Optional[str] = None
     serviceAccountName: Optional[str] = None
+    nodeName: Optional[str] = None
 
 
 class DockerOptions(BaseModel):
