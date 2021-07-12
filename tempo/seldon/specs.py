@@ -165,33 +165,36 @@ class KubernetesSpec:
             self._details.model_details.platform == ModelFramework.TempoPipeline
             or self._details.model_details.platform == ModelFramework.Custom
         ):
-            predictor["componentSpecs"] = self._get_component_specs()
+            predictor["componentSpecs"] = self._get_component_specs(True)
+
+        elif self._details.runtime_options.k8s_options.nodeName is not None:
+            predictor["componentSpecs"] = self._get_component_specs(False)
 
         return predictor
 
-    def _get_component_specs(self) -> list:
-        container_spec = get_container_spec(self._details)
-        container_env = [{"name": name, "value": value} for name, value in container_spec["environment"].items()]
+    def _get_component_specs(self, addContainer: bool) -> list:
 
-        comp_spec = [
-            {
-                "spec": {
-                    "containers": [
-                        {
-                            "name": self._details.model_details.name,
-                            "image": container_spec["image"],
-                            "env": container_env,
-                            # TODO: Necessary to override Triton defaults (see
-                            # note above)
-                            "args": [],
-                        }
-                    ]
+        comp_spec = [{"spec": {"containers": []}}]
+
+        if addContainer:
+            container_spec = get_container_spec(self._details)
+            container_env = [{"name": name, "value": value} for name, value in container_spec["environment"].items()]
+
+            comp_spec[0]["spec"]["containers"] = [
+                {
+                    "name": self._details.model_details.name,
+                    "image": container_spec["image"],
+                    "env": container_env,
+                    # TODO: Necessary to override Triton defaults (see
+                    # note above)
+                    "args": [],
                 }
-            }
-        ]
+            ]
+
         nodeName = self._details.runtime_options.k8s_options.nodeName
         if nodeName is not None:
             comp_spec[0]["spec"]["nodeName"] = nodeName
+
         return comp_spec
 
     def _get_spec_protocol(self) -> str:
