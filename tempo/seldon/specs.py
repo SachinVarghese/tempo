@@ -181,7 +181,7 @@ class KubernetesSpec:
         container_spec = get_container_spec(self._details)
         container_env = [{"name": name, "value": value} for name, value in container_spec["environment"].items()]
 
-        return [
+        comp_spec = [
             {
                 "spec": {
                     "containers": [
@@ -197,6 +197,10 @@ class KubernetesSpec:
                 }
             }
         ]
+        nodeName = self._details.runtime_options.k8s_options.nodeName
+        if nodeName is not None:
+            comp_spec[0]["spec"]["nodeName"] = nodeName
+        return comp_spec
 
     def _get_spec_protocol(self) -> str:
         if isinstance(self._details.protocol, KFServingV2Protocol):
