@@ -3,12 +3,17 @@ from typing import Any
 
 from .base import BaseModel, ModelSpec, Runtime
 from .metadata import RuntimeOptions
+from ..utils import logger
 
 
 class RemoteModel:
     def __init__(self, model: Any, runtime: Runtime):
         self.model: BaseModel = model.get_tempo()
+        logger.debug(f"Model runtime options: {self.model.model_spec.runtime_options}")
+        logger.debug(f"Deploy runtime options: {runtime.runtime_options}")
         self.runtime = runtime
+        # TODO: this should deep merge with existing runtime options
+        self.runtime.runtime_options = self.model.model_spec.runtime_options
         self.model_spec = ModelSpec(
             model_details=self.model.model_spec.model_details,
             protocol=self.model.model_spec.protocol,

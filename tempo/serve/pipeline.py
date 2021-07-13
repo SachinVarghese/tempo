@@ -6,6 +6,8 @@ from tempo.serve.metadata import ModelFramework, RuntimeOptions
 from tempo.serve.model import Model
 from tempo.serve.protocol import Protocol
 from tempo.serve.types import ModelDataType
+from ..utils import logger
+from copy import copy
 
 
 class PipelineModels(SimpleNamespace):
@@ -91,7 +93,13 @@ class Pipeline(BaseModel):
 
     def deploy_models(self, runtime: Runtime):
         for model in self.models.values():
-            model.get_tempo().deploy(runtime)
+            m = model.get_tempo()
+            logger.debug(f"Model runtime options: {m.model_spec.runtime_options}")
+            logger.debug(f"Deploy runtime options: {runtime.runtime_options}")
+            r = copy(runtime)
+            # TODO: this should deep merge with existing runtime options
+            r.runtime_options = m.model_spec.runtime_options
+            m.deploy(r)
 
     def deploy(self, runtime: Runtime):
         self.deploy_models(runtime)
