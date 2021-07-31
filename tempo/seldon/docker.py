@@ -35,9 +35,9 @@ class SeldonDockerRuntime(Runtime):
     def get_endpoint_spec(self, model_spec: ModelSpec) -> str:
         predict_path = model_spec.protocol.get_predict_path(model_spec.model_details)
 
-        if self._is_inside_docker():
+        # if self._is_inside_docker():
             # If inside Docker, use internal networking
-            return f"http://{model_spec.model_details.name}:{DefaultHTTPPort}{predict_path}"
+            # return f"http://{model_spec.model_details.name}:{DefaultHTTPPort}{predict_path}"
 
         host_ip, host_port = self._get_host_ip_port(model_spec)
 
